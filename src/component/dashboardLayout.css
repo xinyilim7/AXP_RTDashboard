@@ -342,14 +342,18 @@ body {
 }
 
 .chart-one {
-  width: 70%;
-  flex-grow: 0;
+  flex-grow: 7;
+  flex-basis: 0;
+  min-width: 0;
+  display: flex;
   flex-direction: column;
 }
 
 .chart-two {
-  width: 30%;
-  flex-grow: 1;
+  flex-grow: 3;
+  flex-basis: 0;
+  min-width: 3;
+  display: flex;
   flex-direction: column;
 }
 
@@ -723,3 +727,4 @@ body {
     gap: 1rem;
   }
 }
+
