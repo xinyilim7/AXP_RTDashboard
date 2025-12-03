@@ -1,8 +1,0 @@
-.git
-.mvn
-.idea
-target/
-!target/*.jar
-mvnw
-mvnw.cmd
-HELP.md
