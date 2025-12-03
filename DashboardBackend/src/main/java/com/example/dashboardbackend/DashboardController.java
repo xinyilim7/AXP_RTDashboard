@@ -55,28 +55,37 @@ public class DashboardController {
     }
 
     @PostMapping("/ingest")
-    public ResponseEntity<String> ingestTransaction(@RequestBody Transaction t, @RequestHeader(value = "X-Signature", required = false) String signature) {
-        try{
-            // 1. Reconstruct JSON String from Object (Needed for signature check)
-            String jsonPayload=objectMapper.writeValueAsString(t);
+    public ResponseEntity<String> ingestTransaction(
+            @RequestBody Transaction t,
+            @RequestHeader(value = "X-Signature", required = false) String signature
+    ) {
+        try {
+            // Convert Object back to JSON
+            String jsonPayload = objectMapper.writeValueAsString(t);
 
-            // 2. Verify Signature
-            if(!securityUtil.isValidSignature(jsonPayload, signature, apiSecret)){
+            // --- DEBUG LOGS (Look at these in your console!) ---
+            System.out.println("========================================");
+            System.out.println("1. Java Rebuilt JSON: " + jsonPayload);
+            System.out.println("2. Client Signature:  " + signature);
+
+            String serverSignature = securityUtil.calculateHMAC(jsonPayload, apiSecret);
+            System.out.println("3. Server Signature:  " + serverSignature);
+            System.out.println("========================================");
+            // ----------------------------------------------------
+
+            if (!securityUtil.isValidSignature(jsonPayload, signature, apiSecret)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Signature");
             }
 
-            // 3. Add Timestamp If Missing
-            if(t.getTimestamp() == null){
-                t.setTimestamp(LocalDateTime.now());
-            }
-
-            // 4. Save directly to DB
+            if (t.getTimestamp() == null) t.setTimestamp(LocalDateTime.now());
             repository.save(t);
             return ResponseEntity.ok("Transaction Saved Successfully");
-        }catch(JsonProcessingException e){
+
+        } catch (JsonProcessingException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Json Format");
         }
     }
+
 
 
 
