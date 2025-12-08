@@ -39,11 +39,7 @@ ___
 ---
 ## 5. **Data Ingestion `(POST /ingest)`**
 - **Description**:
-  - Acts as a Producer. External data sent here and is queued in transactions Kafka topic.
+  - Validates the request signature against payload. If valid, saves the transaction to the database. If invalid, rejects the request.
 - **Request Body (JSON)**:
-  {
-    "merchant": "ABC",
-    "amount": 35.50,
-    "category": "Visa",
-    "status": "success"
-  }
+  - `Content-Type:` JSON String
+  - `X-Signature:` Base64 encoded HMAC-SHA256 signature of JSON body.
