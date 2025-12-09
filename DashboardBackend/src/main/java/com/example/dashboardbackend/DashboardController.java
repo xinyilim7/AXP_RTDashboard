@@ -1,7 +1,12 @@
 package com.example.dashboardbackend;
 
+import com.example.dashboardbackend.SecurityUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -10,14 +15,24 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/dashboard")
-@CrossOrigin(origins = {"http://localhost:3000", "https://silver-granita-51321f.netlify.app/"})
+@CrossOrigin(origins = "*")
 public class DashboardController {
 
     @Autowired
     private DashboardService dashboardService;
 
     @Autowired
-    private KafkaTemplate<String, Transaction> kafkaTemplate;
+    private DashboardRepository repository;
+
+    @Autowired
+    private SecurityUtil securityUtil;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Value("${app.ingest.secret}")
+    private String apiSecret;
+
 
     @GetMapping("/trends")
     public List<Map<String, Object>> getTrend(@RequestParam(defaultValue = "Daily") String dateRange) {
@@ -40,13 +55,37 @@ public class DashboardController {
     }
 
     @PostMapping("/ingest")
-    public String ingestTransaction(@RequestBody Transaction t) {
-        // Add timestamp if missing
-        if(t.getTimestamp() == null)
-            t.setTimestamp(LocalDateTime.now());
+    public ResponseEntity<String> ingestTransaction(
+            @RequestBody Transaction t,
+            @RequestHeader(value = "X-Signature", required = false) String signature
+    ) {
+        try {
+            // Convert Object back to JSON
+            String jsonPayload = objectMapper.writeValueAsString(t);
 
-        kafkaTemplate.send("transactions", t);
-        return "Transaction successfully queued in Kafka!";
+            // --- DEBUG LOGS (Look at these in your console!) ---
+            System.out.println("========================================");
+            System.out.println("1. Java Rebuilt JSON: " + jsonPayload);
+            System.out.println("2. Client Signature:  " + signature);
+
+            String serverSignature = securityUtil.calculateHMAC(jsonPayload, apiSecret);
+            System.out.println("3. Server Signature:  " + serverSignature);
+            System.out.println("========================================");
+            // ----------------------------------------------------
+
+            if (!securityUtil.isValidSignature(jsonPayload, signature, apiSecret)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Signature");
+            }
+
+            if (t.getTimestamp() == null) t.setTimestamp(LocalDateTime.now());
+            repository.save(t);
+            return ResponseEntity.ok("Transaction Saved Successfully");
+
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Json Format");
+        }
     }
+
+
 
 }

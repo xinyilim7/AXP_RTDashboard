@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=xinyi
+      - POSTGRES_DB=axai_dashboard
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    image: my-dashboard-backend
+    build: DashboardBackend
+    ports:
+      - "8080:8080"
+    environment:
+      - TZ=Asia/Kuala_Lumpur
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/axai_dashboard
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=xinyi
+      - APP_INGEST_SECRET=axaipay_dashboard_secret_key_123
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./DashboardFrontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=http://localhost:8080/api/dashboard
+    container_name: axai_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+
+
