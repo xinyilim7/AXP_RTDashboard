@@ -4,8 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-ARG REACT_APP_API_URL
-ENV REACT_APP_API_URL=$REACT_APP_API_URL
+ENV REACT_APP_API_URL=https://stg-tv-dashboard.axaipay.my/api/dashboard
 RUN npm run build
 
 # Serve Stage
