@@ -22,7 +22,7 @@ public class DashboardService {
     public List<Map<String, Object>> getTrendData(String dateRange) {
         LocalDateTime start = getStartDate(dateRange);
         // Get raw data for trends to handle time bucket in java
-        List<Transaction> filtered = repository.findByTimestampAfter(start);
+        List<Transaction> filtered = repository.findByTimestampAfter(start.toString());
 
         if ("Daily".equalsIgnoreCase(dateRange)) {
             return aggregateHourlyTrend(filtered);
@@ -37,23 +37,23 @@ public class DashboardService {
     public List<Transaction> getTopTickets(String dateRange, String sortBy) {
         LocalDateTime start = getStartDate(dateRange);
         if ("timestamp".equalsIgnoreCase(sortBy)) {
-            return repository.findTop10ByTimestampAfterOrderByTimestampDesc(start);
+            return repository.findTop10ByTimestampAfterOrderByTimestampDesc(start.toString());
         } else {
-            return repository.findTop10ByTimestampAfterOrderByAmountDesc(start);
+            return repository.findTop10ByTimestampAfterOrderByAmountDesc(start.toString());
         }
     }
 
     // 3. Merchant Data---
     public List<Map<String, Object>> getTopMerchants(String dateRange, String sortBy) {
         LocalDateTime start = getStartDate(dateRange);
-        List<Object[]> rawStats = repository.findMerchantStats(start);
+        List<Object[]> rawStats = repository.findMerchantStats(start.toString());
         return processAndSortStats(rawStats, sortBy, 10, "merchant");
     }
 
     // 4. Payment Methods Data---
     public List<Map<String, Object>> getTopPaymentMethods(String dateRange, String sortBy) {
         LocalDateTime start = getStartDate(dateRange);
-        List<Object[]> rawStats = repository.findPaymentMethodStats(start);
+        List<Object[]> rawStats = repository.findPaymentMethodStats(start.toString());
         return processAndSortStats(rawStats, sortBy, 5, "category");
     }
 
@@ -92,7 +92,8 @@ public class DashboardService {
         }
         // 3. Fill buckets
         for (Transaction t : events) {
-            int index = t.getTimestamp().getHour() * 60 + t.getTimestamp().getMinute();
+            LocalDateTime txTime = LocalDateTime.parse(t.getTimestamp());
+            int index = txTime.getHour() * 60 + txTime.getMinute();
             if (index >= 0 && index < buckets.size()) {
                 Map<String, Object> bucket = buckets.get(index);
 
@@ -125,7 +126,9 @@ public class DashboardService {
         }
 
         for (Transaction t : events) {
-            int index = t.getTimestamp().getDayOfWeek().getValue() - 1;
+            LocalDateTime txTime = LocalDateTime.parse(t.getTimestamp());
+
+            int index = txTime.getDayOfWeek().getValue() - 1;
             Map<String, Object> bucket = buckets.get(index);
 
             String status = t.getStatus();
@@ -158,7 +161,7 @@ public class DashboardService {
         // 3. Loop through events
         for (Transaction t : events) {
             // Only process events in the current month/year
-            LocalDateTime timestamp = t.getTimestamp();
+            LocalDateTime timestamp = LocalDateTime.parse(t.getTimestamp());
             if (timestamp.getYear() == year && timestamp.getMonthValue() == month) {
 
                 int day = timestamp.getDayOfMonth(); // 1-31

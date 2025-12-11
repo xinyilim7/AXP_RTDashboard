@@ -1,23 +1,41 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'; // allow user to navigate between different pages withouttriggering a full page reload from a server
-import {Provider} from 'react-redux'; // connecting redux to react
-import {DashboardPage} from './page/dashboardPage';
-import store from './state/store'; // central store - actual redux store
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // Added 'Navigate'
+import { Provider } from 'react-redux';
+import { DashboardPage } from './page/dashboardPage';
+import { Login } from './page/loginPage';
+import store from './state/store';
 
-function App(){
-  return(
-    //Connect redux store using provider
-    <Provider store={store}>
-      <Router>
-        <div className="min-h-screen bg-gray-100">
-          <Routes>
-            <Route path="/" element={<DashboardPage/>}/>
-            <Route path="*" element={<div className="p-8 text-center text-xl">404 - Not Found</div>} />
-          </Routes>
-        </div>
-      </Router>
-    </Provider>
-  );
+const ProtectedRoute = ({ children }) => {
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+        return <Navigate to="/login" replace />;
+    }
+    return children;
+};
+
+function App() {
+    return (
+        <Provider store={store}>
+            <Router>
+                <div className="min-h-screen bg-gray-100">
+                    <Routes>
+                        <Route path="/login" element={<Login />} />
+                        <Route
+                            path="/"
+                            element={
+                                <ProtectedRoute>
+                                    <DashboardPage />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route path="/dashboard" element={<Navigate to="/" replace />} />
+                        <Route path="*" element={<div className="p-8 text-center text-xl">404 - Not Found</div>} />
+                    </Routes>
+                </div>
+            </Router>
+        </Provider>
+    );
 }
 
 export default App;
