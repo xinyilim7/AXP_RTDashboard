@@ -77,7 +77,7 @@ public class DashboardController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Signature");
             }
 
-            if (t.getTimestamp() == null) t.setTimestamp(LocalDateTime.now());
+            if (t.getTimestamp() == null) t.setTimestamp(LocalDateTime.now().toString());
             repository.save(t);
             return ResponseEntity.ok("Transaction Saved Successfully");
 
@@ -85,7 +85,4 @@ public class DashboardController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Json Format");
         }
     }
-
-
-
 }
