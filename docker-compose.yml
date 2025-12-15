@@ -32,6 +32,8 @@ services:
       dockerfile: Dockerfile
       args:
         - REACT_APP_API_URL=https://stg-tv-dashboard.axaipay.my/api/dashboard
+        - REACT_APP_ADMIN_USERNAME=axpAdmin
+        - REACT_APP_ADMIN_PASSWORD=S3cure!D@shb0ard_AXP123
     container_name: axai_frontend
     ports:
       - "3082:80"
