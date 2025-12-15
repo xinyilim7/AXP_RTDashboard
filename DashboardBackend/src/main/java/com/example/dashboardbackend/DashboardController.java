@@ -54,35 +54,82 @@ public class DashboardController {
         return dashboardService.getTopPaymentMethods(dateRange, sortBy);
     }
 
+//    @PostMapping("/ingest")
+//    public ResponseEntity<String> ingestTransaction(
+//            @RequestBody Transaction t,
+//            @RequestHeader(value = "X-Signature", required = false) String signature
+//    ) {
+//        try {
+//            // Convert Object back to JSON
+//            String jsonPayload = objectMapper.writeValueAsString(t);
+//
+//            // --- DEBUG LOGS (Look at these in your console!) ---
+//            System.out.println("========================================");
+//            System.out.println("1. Java Rebuilt JSON: " + jsonPayload);
+//            System.out.println("2. Client Signature:  " + signature);
+//
+//            String serverSignature = securityUtil.calculateHMAC(jsonPayload, apiSecret);
+//            System.out.println("3. Server Signature:  " + serverSignature);
+//            System.out.println("========================================");
+//            // ----------------------------------------------------
+//
+//            if (!securityUtil.isValidSignature(jsonPayload, signature, apiSecret)) {
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Signature");
+//            }
+//
+//            if (t.getTimestamp() == null) t.setTimestamp(LocalDateTime.now().toString());
+//            repository.save(t);
+//            return ResponseEntity.ok("Transaction Saved Successfully");
+//
+//        } catch (JsonProcessingException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Json Format");
+//        }
+//    }
+
     @PostMapping("/ingest")
     public ResponseEntity<String> ingestTransaction(
-            @RequestBody Transaction t,
+            @RequestBody String rawJsonPayload, // 1. Receive the exact text the client sent
             @RequestHeader(value = "X-Signature", required = false) String signature
     ) {
         try {
-            // Convert Object back to JSON
-            String jsonPayload = objectMapper.writeValueAsString(t);
-
-            // --- DEBUG LOGS (Look at these in your console!) ---
+            // --- DEBUG LOGS ---
             System.out.println("========================================");
-            System.out.println("1. Java Rebuilt JSON: " + jsonPayload);
+            System.out.println("1. Raw Received JSON: " + rawJsonPayload); // Log the RAW string
             System.out.println("2. Client Signature:  " + signature);
 
-            String serverSignature = securityUtil.calculateHMAC(jsonPayload, apiSecret);
-            System.out.println("3. Server Signature:  " + serverSignature);
-            System.out.println("========================================");
-            // ----------------------------------------------------
+            // 2. Validate using the RAW string immediately
+            // We do NOT rebuild the JSON here. We use exactly what arrived.
+            if (!securityUtil.isValidSignature(rawJsonPayload, signature, apiSecret)) {
 
-            if (!securityUtil.isValidSignature(jsonPayload, signature, apiSecret)) {
+                // Calculate what it SHOULD be for debugging purposes
+                String expected = securityUtil.calculateHMAC(rawJsonPayload, apiSecret);
+                System.out.println("3. Server Calculated: " + expected); // Mismatch debug
+                System.out.println("========================================");
+
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Signature");
             }
 
-            if (t.getTimestamp() == null) t.setTimestamp(LocalDateTime.now().toString());
+            System.out.println(">>> Signature MATCHED! Saving to DB...");
+            System.out.println("========================================");
+
+            // 3. NOW convert the string to the Object (Deserialization)
+            Transaction t = objectMapper.readValue(rawJsonPayload, Transaction.class);
+
+            // 4. Handle timestamp if missing (Safety check)
+            if (t.getTimestamp() == null) {
+                t.setTimestamp(LocalDateTime.now().toString());
+            }
+
+            // 5. Save to Database
             repository.save(t);
             return ResponseEntity.ok("Transaction Saved Successfully");
 
         } catch (JsonProcessingException e) {
+            log.error("Failed to parse JSON", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Json Format");
+        } catch (Exception e) {
+            log.error("Unexpected error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing transaction");
         }
     }
 }
