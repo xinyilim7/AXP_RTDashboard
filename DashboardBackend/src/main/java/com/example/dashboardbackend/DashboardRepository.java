@@ -28,10 +28,14 @@ public interface DashboardRepository extends JpaRepository<Transaction,Long> {
     List<Object[]> findMerchantStats(@Param("start") String start);
 
     // 5. Top 5 Payment (Group by payment method)
-    @Query("SELECT t.category, SUM(t.amount), COUNT(t) " +
+    @Query("SELECT t.category, SUM(t.amount), COUNT(t), " +
+            "SUM(CASE WHEN LOWER(t.status) = 'success' THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN LOWER(t.status) = 'failed' THEN 1 ELSE 0 END) " +
             "FROM Transaction t " +
-            "WHERE t.timestamp >= :start AND t.status='success' " +
+            "WHERE t.timestamp >= :start " +
             "GROUP BY t.category")
     List<Object[]> findPaymentMethodStats(@Param("start") String start);
+
+    //"WHERE t.timestamp >= :start AND t.status='success' " +
 
 }

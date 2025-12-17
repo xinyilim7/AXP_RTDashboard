@@ -51,10 +51,38 @@ public class DashboardService {
     }
 
     // 4. Payment Methods Data---
+    // 4. Payment Methods Data---
     public List<Map<String, Object>> getTopPaymentMethods(String dateRange, String sortBy) {
         LocalDateTime start = getStartDate(dateRange);
         List<Object[]> rawStats = repository.findPaymentMethodStats(start.toString());
-        return processAndSortStats(rawStats, sortBy, 5, "category");
+
+        List<Map<String, Object>> results = rawStats.stream().map(row -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("category", row[0]);
+            map.put("amount", row[1] != null ? ((Number) row[1]).doubleValue() : 0.0);
+            map.put("volume", row[2] != null ? ((Number) row[2]).longValue() : 0L);
+            map.put("success", row[3] != null ? ((Number) row[3]).longValue() : 0L);
+            map.put("failed", row[4] != null ? ((Number) row[4]).longValue() : 0L);
+            return map;
+        }).collect(Collectors.toList());
+
+        Comparator<Map<String, Object>> comparator;
+        if ("volume".equalsIgnoreCase(sortBy)) {
+            comparator = (m1, m2) -> Long.compare(
+                    ((Number) m2.get("volume")).longValue(),
+                    ((Number) m1.get("volume")).longValue()
+            );
+        } else {
+            comparator = (m1, m2) -> Double.compare(
+                    ((Number) m2.get("amount")).doubleValue(),
+                    ((Number) m1.get("amount")).doubleValue()
+            );
+        }
+
+        return results.stream()
+                .sorted(comparator)
+                .limit(5)
+                .collect(Collectors.toList());
     }
 
     //==================================================================
@@ -87,6 +115,7 @@ public class DashboardService {
                 bucket.put("failed", 0);
                 bucket.put("pending", 0);
                 bucket.put("total", 0);
+                bucket.put("amount", 0.0);
                 buckets.add(bucket);
             }
         }
@@ -100,10 +129,12 @@ public class DashboardService {
                 // Convert status to lowercase to match your map keys ("success", "failed")
                 String status = t.getStatus().toLowerCase();
 
-                // Safe update: Use getOrDefault to prevent crashes if status is unknown
                 if (bucket.containsKey(status)) {
                     bucket.put(status, (int) bucket.get(status) + 1);
                 }
+
+                double currentAmount = ((Number) bucket.get("amount")).doubleValue();
+                bucket.put("amount", currentAmount + t.getAmount());
                 bucket.put("total", (int) bucket.get("total") + 1);
             }
         }
@@ -122,6 +153,7 @@ public class DashboardService {
             bucket.put("failed", 0);
             bucket.put("pending", 0);
             bucket.put("total", 0);
+            bucket.put("amount", 0.0);
             buckets.add(bucket);
         }
 
@@ -133,6 +165,9 @@ public class DashboardService {
 
             String status = t.getStatus();
             bucket.put(status, (int) bucket.get(status) + 1);
+
+            double currentAmount = ((Number) bucket.get("amount")).doubleValue();
+            bucket.put("amount", currentAmount + t.getAmount());
             bucket.put("total", (int) bucket.get("total") + 1);
         }
         return buckets;
@@ -154,7 +189,9 @@ public class DashboardService {
             bucket.put("label", (i < 10 ? "0" + i : String.valueOf(i)));
             bucket.put("success", 0);
             bucket.put("failed", 0);
+            bucket.put("pending", 0);
             bucket.put("total", 0);
+            bucket.put("amount", 0.0);
             buckets.add(bucket);
         }
 
@@ -176,6 +213,8 @@ public class DashboardService {
                     } else if ("failed".equalsIgnoreCase(t.getStatus())) {
                         bucket.put("failed", (int) bucket.get("failed") + 1);
                     }
+                    double currentAmount = ((Number) bucket.get("amount")).doubleValue();
+                    bucket.put("amount", currentAmount + t.getAmount());
                     bucket.put("total", (int) bucket.get("total") + 1);
                 }
             }
