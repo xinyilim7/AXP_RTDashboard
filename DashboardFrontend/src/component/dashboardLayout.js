@@ -25,6 +25,7 @@ import {
   fetchDashboardDataThunk,
 } from "../state/dashboardSlice";
 
+
 function MerchantDateRangeFilter({ currentRange, onRangeChange }) {
   const ranges = ["Daily", "Weekly", "Monthly"];
   const handleRangeChange = (range) => {
@@ -337,27 +338,44 @@ export function DashboardLayout() {
 
       {/* --- 2. MAIN CONTENT GRID --- */}
       <main className="dashboard-main">
-          <div id="section-trends" className="chart-row">
-            <div className="chart-one">
-              <TrendChart
-                data={displayData.hourlyTrend || []}
-                loading={loading}
-                error={error}
-                icon={<TrendingUp size={40} color="#ff3b30" />}
-                dateRange={filters.dateRange}
-                headerActions={
-                  <div className="trend-header-controls">
-                    <DateRangeFilter
-                      currentRange={filters.dateRange}
-                      className="date-range-filter"
-                      onRangeChange={(range) =>
-                        dispatch(updateDateRange(range))
+          <div id="section-top-view" className="compact-row">
+              <div className="chart-left-panel">
+                  <TrendChart
+                      data={displayData.hourlyTrend || []}
+                      loading={loading}
+                      error={error}
+                      icon={<TrendingUp size={40} color="#ff3b30" />}
+                      dateRange={filters.dateRange}
+                      headerActions={
+                          <div className="trend-header-controls">
+                              <DateRangeFilter
+                                  currentRange={filters.dateRange}
+                                  onRangeChange={(range) => dispatch(updateDateRange(range))}
+                              />
+                          </div>
                       }
-                    />
-                  </div>
-                }
-              />
-            </div>
+                  />
+              </div>
+
+              <div className="chart-right-panel">
+                  <PaymentMethodChart
+                      title={`Top Payment Methods`}
+                      data={displayData.topPaymentMethods}
+                      loading={loading}
+                      error={error}
+                      icon={<BadgeDollarSign size={40} color="#ff3b30" />}
+                      currentSortKey={filters.paymentMethodSortBy}
+                      headerActions={
+                          <div className="ticket-header-controls" style={{ gap: '0.5rem' }}>
+                              <PaymentDateRangeFilter
+                                  currentRange={filters.paymentMethodDateRange}
+                                  onRangeChange={(range) => dispatch(updatePaymentMethodDateRange(range))}
+                              />
+                              <PaymentSortFilter />
+                          </div>
+                      }
+                  />
+              </div>
           </div>
           {/**Top 10 Ticket Size */}
           <div id="section-tickets">

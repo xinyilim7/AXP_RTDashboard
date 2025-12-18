@@ -399,31 +399,31 @@ body {
 
 .status-summary-container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: 30px;
+    gap: 10px;
     margin-bottom: 20px;
     padding: 10px 0;
     border-bottom: 1px solid var(--border-color, #333);
 }
 
 .status-group {
-    background-color: var(--card-bg, #252525); /* Dark background for the box */
-    border: 1px solid var(--border-color, #444); /* The visible border */
-    border-radius: 12px;                        /* Rounded corners */
-    padding: 16px 20px;                         /* Space inside the box */
+    background-color: var(--card-bg, #252525);
+    border: 1px solid var(--border-color, #444);
+    border-radius: 12px;
+    padding: 16px 20px;
     display: flex;
+    flex: 0.5;
     flex-direction: column;
-    gap: 5px;
-    flex: 1;                /* Makes all 4 boxes equal width */
-    min-width: 200px;       /* Prevents squishing on small screens */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Subtle drop shadow */
+    min-width: 150px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .status-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 1.8rem;
+    font-size: 130%;
     font-weight: 600;
 }
 
@@ -455,7 +455,7 @@ body {
 }
 
 .status-number {
-    font-size: 24px;
+    font-size: 110%;
     font-weight: bold;
     color: var(--text-main);
 }
@@ -600,8 +600,8 @@ body {
 .ticket-header-controls {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    gap: 2rem;
+    align-items: flex-end;
+    gap: 4rem;
 }
 
 .ticket-sort-toggle {
@@ -1015,7 +1015,7 @@ body {
 .chart-tooltip-total {
     color: var(--text-main, #555);
     margin-bottom: 8px;
-    font-size: 110%;
+    font-size: 100%;
 }
 
 /*Success/Failed Section*/
@@ -1093,5 +1093,44 @@ body {
 }
 
 
+
+
+
+
+
+/* --- COMPACT ROW LAYOUT --- */
+.compact-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: stretch; /* Ensures both cards are same height */
+    gap: 1.5rem;          /* Space between the two charts */
+    margin-bottom: 1.5rem;
+}
+
+/* 60% Width for Trend Chart */
+.chart-left-panel {
+    flex: 6;
+    min-width: 0; /* Prevents flex items from overflowing */
+}
+
+/* 40% Width for Payment Chart */
+.chart-right-panel {
+    flex: 4;
+    min-width: 0;
+}
+
+/* Mobile Responsiveness: Stack them vertically on small screens */
+@media (max-width: 1024px) {
+    .compact-row {
+        flex-direction: column;
+    }
+
+    .chart-left-panel,
+    .chart-right-panel {
+        flex: 1;
+        width: 100%;
+    }
+}
 
 
