@@ -26,7 +26,7 @@ const SortableHeader = ({ label, onSort, sortKey, currentSortKey }) => {
   return (
     <th className="sortable-header" onClick={() => onSort(sortKey)}>
       {label}
-      {isActive && <ArrowDown size={20} style={{ marginLeft: "10px" }} />}
+      {isActive && <ArrowDown size={25} style={{ marginLeft: "10px" }} />}
     </th>
   );
 };

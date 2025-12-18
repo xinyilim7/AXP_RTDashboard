@@ -51,21 +51,73 @@ public class DashboardService {
     }
 
     // 4. Payment Methods Data---
-    // 4. Payment Methods Data---
+//    public List<Map<String, Object>> getTopPaymentMethods(String dateRange, String sortBy) {
+//        LocalDateTime start = getStartDate(dateRange);
+//        List<Object[]> rawStats = repository.findPaymentMethodStats(start.toString());
+//
+//        List<Map<String, Object>> results = rawStats.stream().map(row -> {
+//            Map<String, Object> map = new HashMap<>();
+//            map.put("category", row[0]);
+//            map.put("amount", row[1] != null ? ((Number) row[1]).doubleValue() : 0.0);
+//            map.put("volume", row[2] != null ? ((Number) row[2]).longValue() : 0L);
+//            map.put("success", row[3] != null ? ((Number) row[3]).longValue() : 0L);
+//            map.put("failed", row[4] != null ? ((Number) row[4]).longValue() : 0L);
+//            return map;
+//        }).collect(Collectors.toList());
+//
+//        Comparator<Map<String, Object>> comparator;
+//        if ("volume".equalsIgnoreCase(sortBy)) {
+//            comparator = (m1, m2) -> Long.compare(
+//                    ((Number) m2.get("volume")).longValue(),
+//                    ((Number) m1.get("volume")).longValue()
+//            );
+//        } else {
+//            comparator = (m1, m2) -> Double.compare(
+//                    ((Number) m2.get("amount")).doubleValue(),
+//                    ((Number) m1.get("amount")).doubleValue()
+//            );
+//        }
+//
+//        return results.stream()
+//                .sorted(comparator)
+//                .limit(5)
+//                .collect(Collectors.toList());
+//    }
+
     public List<Map<String, Object>> getTopPaymentMethods(String dateRange, String sortBy) {
         LocalDateTime start = getStartDate(dateRange);
         List<Object[]> rawStats = repository.findPaymentMethodStats(start.toString());
 
         List<Map<String, Object>> results = rawStats.stream().map(row -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("category", row[0]);
-            map.put("amount", row[1] != null ? ((Number) row[1]).doubleValue() : 0.0);
-            map.put("volume", row[2] != null ? ((Number) row[2]).longValue() : 0L);
-            map.put("success", row[3] != null ? ((Number) row[3]).longValue() : 0L);
-            map.put("failed", row[4] != null ? ((Number) row[4]).longValue() : 0L);
+
+            // 1. Get existing data
+            String category = (String) row[0];
+            double totalAmount = row[1] != null ? ((Number) row[1]).doubleValue() : 0.0;
+            long totalVolume = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+            long successCount = row[3] != null ? ((Number) row[3]).longValue() : 0L;
+            long failedCount = row[4] != null ? ((Number) row[4]).longValue() : 0L;
+
+            map.put("category", category);
+            map.put("amount", totalAmount);
+            map.put("volume", totalVolume);
+            map.put("success", successCount);
+            map.put("failed", failedCount);
+
+            if (totalVolume > 0) {
+                double avgTicket = totalAmount / totalVolume;
+
+                map.put("successAmount", avgTicket * successCount);
+                map.put("failedAmount", avgTicket * failedCount);
+            } else {
+                map.put("successAmount", 0.0);
+                map.put("failedAmount", 0.0);
+            }
+
             return map;
         }).collect(Collectors.toList());
 
+        // 3. Sorting Logic (Keep existing)
         Comparator<Map<String, Object>> comparator;
         if ("volume".equalsIgnoreCase(sortBy)) {
             comparator = (m1, m2) -> Long.compare(

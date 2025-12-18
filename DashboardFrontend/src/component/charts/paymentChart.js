@@ -8,28 +8,26 @@ import {
     ResponsiveContainer,
     Label,
     Cell,
+    Legend,
 } from "recharts";
 import ChartWrapper from "./chartWrapper";
 
-const RED_THEME_COLORS = [
-    "#800808ff",
-    "#a41e1eff",
-    "#cc2a1eff",
-    "#de4a4aff",
-    "#dd5a67ff",
+const GREY_THEME_COLORS = [
+    "#393838",
+    "#4a4949",
+    "#5c5b5b",
+    "#605b5b",
+    "#6c6969",
 ];
 
 const formatCurrency = (value) => {
     if (value > 1000) {
         return `RM ${(value / 1000).toLocaleString("en-US", {
-            // format into 1 decimal point
             minimumFractionDigits: 1,
             maximumFractionDigits: 1,
         })}k`;
     }
-
     return `RM ${value.toLocaleString("en-US", {
-        // format into no decimal point
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     })}`;
@@ -48,29 +46,27 @@ const CustomTooltip = ({ active, payload, currentSortKey }) => {
         const data = payload[0].payload;
         const isVolume = currentSortKey === "volume";
 
-        const totalValue = isVolume
-            ? formatVolume(data.volume)
-            : formatCurrency(data.amount);
+        // Logic to switch between count and amount in tooltip
+        const successVal = isVolume ? data.success : data.successAmount;
+        const failedVal = isVolume ? data.failed : data.failedAmount;
+        const totalVal = isVolume ? data.volume : data.amount;
+
+        const formatter = isVolume ? formatVolume : formatCurrency;
 
         return (
             <div className="chart-tooltip">
-                {/*Header*/}
-                <p className="chart-tooltip-header">
-                    {data.category}
-                </p>
-                {/*Total*/}
+                <p className="chart-tooltip-header">{data.category}</p>
                 <p className="chart-tooltip-total">
-                    Total {isVolume ? "Volume" : "Amount"}: <strong>{totalValue}</strong>
+                    Total {isVolume ? "Volume" : "Amount"}: <strong>{formatter(totalVal)}</strong>
                 </p>
-                {/*Breakdown*/}
                 <div className="tooltip-stats-row">
                     <div className="stat-box box-success">
                         <span className="stat-label text-success">Success</span>
-                        <span className="stat-value text-success">{formatVolume(data.success)}</span>
+                        <span className="stat-value text-success">{formatter(successVal)}</span>
                     </div>
                     <div className="stat-box box-failed">
                         <span className="stat-label text-failed">Failed</span>
-                        <span className="stat-value text-failed">{formatVolume(data.failed)}</span>
+                        <span className="stat-value text-failed">{formatter(failedVal)}</span>
                     </div>
                 </div>
             </div>
@@ -89,10 +85,12 @@ export function PaymentMethodChart({
                                        currentSortKey,
                                    }) {
     const isInitialLoading = loading && (!data || data.length === 0);
-    const dataFormatter =
-        currentSortKey === "amount" ? formatCurrency : formatVolume;
-
+    const dataFormatter = currentSortKey === "amount" ? formatCurrency : formatVolume;
     const chartData = data || [];
+
+    const isVolume = currentSortKey === "volume";
+    const successKey = isVolume ? "success" : "successAmount";
+    const failedKey = isVolume ? "failed" : "failedAmount";
 
     return (
         <ChartWrapper
@@ -102,10 +100,12 @@ export function PaymentMethodChart({
             icon={icon}
             headerActions={headerActions}
         >
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={450}>
                 <BarChart
                     data={data}
                     layout="vertical"
+                    barGap={5}
+                    barCategoryGap="30%"
                     margin={{ top: 20, right: 200, left: 100, bottom: 20 }}
                 >
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} />
@@ -113,10 +113,10 @@ export function PaymentMethodChart({
                         dataKey="category"
                         type="category"
                         value="Payment Method"
-                        width={120}
+                        width={180}
                         tickLine={false}
                         axisLine={false}
-                        tick={{ fontSize: 18, fontWeight: 700, fill: "var(--text-muted)" }}
+                        tick={{ fontSize: "150%", fontWeight: 700, fill: "var(--text-muted)" }}
                         dx={-10}
                     />
                     <XAxis
@@ -124,39 +124,65 @@ export function PaymentMethodChart({
                         tickFormatter={dataFormatter}
                         tickLine={false}
                         axisLine={false}
-                        tick={{ fill: "var(--text-muted)" }}
+                        tick={{ fill: "var(--text-muted)", fontSize: "150%", fontWeight: 700 }}
                     >
                         <Label
                             value={
-                                currentSortKey === "amount"
-                                    ? "Total Amount (MYR)"
-                                    : "Total Volume"
+                                isVolume
+                                    ? "Total Volume"
+                                    : "Total Amount (MYR)"
                             }
                             position="insideBottom"
-                            dy={20}
+                            dy={25}
                             style={{
                                 fontWeight: 700,
-                                fontSize: 18,
-                                fill: "var(--text-muted",
+                                fontSize: "130%",
+                                fill: "var(--text-muted)",
                             }}
                         />
                     </XAxis>
                     <Tooltip
-                        cursor={{fill:'transparent'}}
-                        content={<CustomTooltip currentSortKey={currentSortKey}/>}
+                        cursor={{ fill: 'transparent' }}
+                        content={<CustomTooltip currentSortKey={currentSortKey} />}
+                    />
+                    <Legend
+                        verticalAlign="top"
+                        align="right"
+                        height={36}
+                        iconType="circle"
+                        wrapperStyle={{
+                            fontSize: "150%",
+                            fontWeight: 700,
+                            paddingLeft: "10px"
+                        }}
                     />
                     <Bar
-                        dataKey={currentSortKey} // amount or volume
-                        radius={[0, 4, 4, 0]}
-                        barSize={20}
+                        dataKey={currentSortKey}
+                        name="Total"
+                        radius={[0, 2, 2, 0]}
+                        barSize={5}
                     >
                         {chartData.map((entry, index) => (
                             <Cell
                                 key={`cell-${index}`}
-                                fill={RED_THEME_COLORS[index % RED_THEME_COLORS.length]}
+                                fill={GREY_THEME_COLORS[index % GREY_THEME_COLORS.length]}
                             />
                         ))}
                     </Bar>
+                    <Bar
+                        dataKey={successKey}
+                        name="Success"
+                        fill="#10b981"
+                        barSize={15}
+                        radius={[0, 2, 2, 0]}
+                    />
+                    <Bar
+                        dataKey={failedKey}
+                        name="Failed"
+                        fill="#ef4444"
+                        barSize={15}
+                        radius={[0, 2, 2, 0]}
+                    />
                 </BarChart>
             </ResponsiveContainer>
         </ChartWrapper>

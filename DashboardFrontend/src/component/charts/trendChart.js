@@ -36,17 +36,14 @@ export function TrendChart({
             return { successTotal: 0, failedTotal: 0, pendingTotal:0, successRate: 0, failedRate: 0, isCritical: false , totalVolume:0, totalAmount:0 };
         }
 
-        // Calculate Count
         const success = safeData.reduce((acc, cur) => acc + (cur.success || 0), 0);
         const failed = safeData.reduce((acc, cur) => acc + (cur.failed || 0), 0);
         const pending = safeData.reduce((acc, cur)=> acc + (cur.pending || 0), 0);
         const total = success + failed + pending;
 
-        // Calculate Rate
         const sRate= total > 0 ? ((success / total) * 100).toFixed(2) : 0;
         const fRate = total > 0 ? ((failed / total) * 100).toFixed(2) : 0;
 
-        // Calculate Amount
         const amount = safeData.reduce((acc, cur) => acc + (cur.amount || 0), 0);
         const atv = total > 0 ? (amount/total) : 0;
 
@@ -56,7 +53,7 @@ export function TrendChart({
             pendingTotal: pending,
             successRate: sRate,
             failedRate: fRate,
-            isCritical: parseFloat(fRate) > 20 && total > 10, // Failure Rate > 20% show alert
+            isCritical: parseFloat(fRate) > 20 && total > 10,
             totalVolume: total,
             totalAmount: amount,
             averageValue: atv
@@ -90,7 +87,7 @@ export function TrendChart({
             allowDecimals={false}
             tickFormatter={(value) => value.toLocaleString()}
             width={60}
-            tick={{ fill: "var(--text-muted)", fontSize: 14 }}
+            tick={{ fill: "var(--text-muted)", fontSize: "110%" }}
             label={{
                 value: "Transaction Count",
                 angle: -90,
@@ -100,6 +97,7 @@ export function TrendChart({
                     fill: "var(--text-muted)",
                     textAnchor: "middle",
                     fontWeight: 700,
+                    fontSize: "150%",
                 },
             }}
         />
@@ -111,7 +109,7 @@ export function TrendChart({
                 type="linear"
                 dataKey="success"
                 stroke={visible ? "#14bd85ff" : "none"}
-                strokeWidth={2}
+                strokeWidth={4}
                 name="Successful Txns"
                 dot={false}
                 isAnimationActive={false}
@@ -120,7 +118,7 @@ export function TrendChart({
                 type="linear"
                 dataKey="failed"
                 stroke={visible ? "#F44336" : "none"}
-                strokeWidth={1}
+                strokeWidth={2}
                 name="Failure Txns"
                 dot={false}
                 isAnimationActive={false}
@@ -136,12 +134,10 @@ export function TrendChart({
             icon={icon}
             headerActions={headerActions}
         >
-            {/* =========================================================
-          STATUS CARDS
-         ========================================================= */}
+            {/* ALERT POPUP */}
             {isCritical && showAlert && (
                 <div className="chart-popup-alert">
-                    <AlertTriangle size={25} />
+                    <AlertTriangle size={30} />
                     <span>Warning: High Failure Rate Detected ({failedRate}%)</span>
                     <button onClick={() => setShowAlert(false)} className="alert-close-btn">
                         <X size={18} />
@@ -149,65 +145,59 @@ export function TrendChart({
                 </div>
             )}
 
+            {/* STATUS CARDS */}
             <div className="status-summary-container">
-                {/*Total Transaction Volume (Success + Failed + Pending)*/}
                 <div className="status-group">
                     <div className="status-header volume">
                         <span>Total Volume</span>
                     </div>
                     <div className="status-value-row">
-            <span className="status-number">
-              {totalVolume.toLocaleString()}
-            </span>
+                        <span className="status-number">
+                          {totalVolume.toLocaleString()}
+                        </span>
                     </div>
                 </div>
 
-                {/*Total Transaction Amount (MYR)*/}
                 <div className="status-group">
                     <div className="status-header amount">
                         <span>Total Amount</span>
                     </div>
                     <div className="status-value-row">
-            <span className="status-number">
-              <span style={{ fontSize: '0.8em', marginRight: '4px' }}>RM</span>
-                {totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
+                        <span className="status-number">
+                            <span style={{ fontSize: '110%', marginRight: '4px' }}>RM</span>
+                            {totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
                     </div>
                 </div>
 
-                {/* Success Group */}
                 <div className="status-group">
                     <div className="status-header success">
                         <span>Success Transaction</span>
                     </div>
                     <div className="status-value-row">
-            <span className="status-number">
-              {successTotal.toLocaleString()}
-            </span>
+                        <span className="status-number">
+                          {successTotal.toLocaleString()}
+                        </span>
                         <span className="status-percentage">({successRate}%)</span>
                     </div>
                 </div>
 
-                {/* Failed Group */}
                 <div className="status-group">
                     <div className="status-header failed">
                         <span>Failed Transaction</span>
                     </div>
                     <div className="status-value-row">
-            <span className="status-number">
-              {failedTotal.toLocaleString()}
-            </span>
+                        <span className="status-number">
+                          {failedTotal.toLocaleString()}
+                        </span>
                         <span className="status-percentage">({failedRate}%)</span>
                     </div>
                 </div>
             </div>
 
-            {/* =========================================================
-          DAILY VIEW
-         ========================================================= */}
+            {/* DAILY VIEW */}
             {isDaily ? (
                 <div style={{ display: "flex", height: 350, width: "100%" }}>
-                    {/* FIXED Y-AXIS */}
                     <div
                         style={{
                             width: "100px",
@@ -224,7 +214,6 @@ export function TrendChart({
                         </ResponsiveContainer>
                     </div>
 
-                    {/* SCROLLING CONTENT */}
                     <div
                         ref={scrollContainerRef}
                         style={{ flexGrow: 1, overflowX: "auto", overflowY: "hidden" }}
@@ -240,7 +229,7 @@ export function TrendChart({
                                         interval={0}
                                         tick={{
                                             fill: "var(--text-muted)",
-                                            fontSize: 14,
+                                            fontSize:"130%",
                                             dy: 10,
                                             angle: -45,
                                         }}
@@ -248,8 +237,8 @@ export function TrendChart({
                                         <Label
                                             value="Time (Per Minute)"
                                             position="insideBottom"
-                                            dy={28}
-                                            style={{ fontWeight: 700, fill: "var(--text-muted)" }}
+                                            dy={35}
+                                            style={{ fontWeight: 700, fill: "var(--text-muted)", fontSize:"130%" }}
                                         />
                                     </XAxis>
 
@@ -287,7 +276,7 @@ export function TrendChart({
                                 interval={0}
                                 tick={{
                                     fill: "var(--text-muted)",
-                                    fontSize: 16,
+                                    fontSize: "130%",
                                     dy: 10,
                                     angle: 0,
                                 }}
@@ -295,14 +284,15 @@ export function TrendChart({
                                 <Label
                                     value={dateRange === "Weekly" ? "Day of Week" : "Date"}
                                     position="insideBottom"
-                                    dy={28}
-                                    style={{ fontWeight: 700, fill: "var(--text-muted)" }}
+                                    dy={30}
+                                    style={{ fontWeight: 700, fill: "var(--text-muted)", fontSize:"130%" }}
                                 />
                             </XAxis>
                             <YAxis
                                 allowDecimals={false}
                                 tickFormatter={(value) => value.toLocaleString()}
                                 width={80}
+                                tick={{ fill: "var(--text-muted)", fontSize: "110%" }}
                                 label={{
                                     value: "Transaction Count",
                                     angle: -90,
@@ -312,6 +302,7 @@ export function TrendChart({
                                         fill: "var(--text-muted)",
                                         textAnchor: "middle",
                                         fontWeight: 700,
+                                        fontSize: "140%"
                                     },
                                 }}
                             />
@@ -328,7 +319,7 @@ export function TrendChart({
                                 type="linear"
                                 dataKey="success"
                                 stroke="#14bd85ff"
-                                strokeWidth={3.5}
+                                strokeWidth={4}
                                 name="Successful Txns"
                                 dot={false}
                                 isAnimationActive={false}
@@ -337,7 +328,7 @@ export function TrendChart({
                                 type="linear"
                                 dataKey="failed"
                                 stroke="#F44336"
-                                strokeWidth={1}
+                                strokeWidth={2}
                                 name="Failure Txns"
                                 dot={false}
                                 isAnimationActive={false}
@@ -359,30 +350,30 @@ export function TrendChart({
                 }}
             >
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <span
-              style={{
-                  width: "18px",
-                  height: "18px",
-                  borderRadius: "50%",
-                  backgroundColor: "#14bd85ff",
-              }}
-          />
-                    <span style={{ fontSize: "18px", color: "var(--text-secondary)" }}>
-            Successful Txns
-          </span>
+                  <span
+                      style={{
+                          width: "18px",
+                          height: "18px",
+                          borderRadius: "50%",
+                          backgroundColor: "#14bd85ff",
+                      }}
+                  />
+                    <span style={{ fontSize: "150%", color: "var(--text-secondary)" }}>
+                        Successful Txns
+                    </span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <span
-              style={{
-                  width: "18px",
-                  height: "18px",
-                  borderRadius: "50%",
-                  backgroundColor: "#F44336",
-              }}
-          />
-                    <span style={{ fontSize: "18px", color: "var(--text-secondary)" }}>
-            Failure Txns
-          </span>
+                  <span
+                      style={{
+                          width: "18px",
+                          height: "18px",
+                          borderRadius: "50%",
+                          backgroundColor: "#F44336",
+                      }}
+                  />
+                    <span style={{ fontSize: "150%", color: "var(--text-secondary)" }}>
+                        Failure Txns
+                    </span>
                 </div>
             </div>
         </ChartWrapper>
