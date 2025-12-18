@@ -104,9 +104,7 @@ function PaymentSortFilter() {
 
   return (
     <div className="category-filter">
-      <label htmlFor="payment-sort" className="filter-label">
-        Sort By
-      </label>
+      <label htmlFor="payment-sort" className="filter-label"></label>
       <select
         id="payment-sort"
         className="secondary-filter-select"
@@ -418,31 +416,6 @@ export function DashboardLayout() {
                       }
                     />
                     <MerchantSortFilter />
-                  </div>
-                }
-              />
-            </div>
-          </div>
-
-          {/**Top 10 Payment Methods */}
-          <div id="section-payments" className="table-container">
-            <div>
-              <PaymentMethodChart
-                title={`Top 5 Payment Methods (${filters.paymentMethodDateRange})`}
-                data={displayData.topPaymentMethods}
-                loading={loading}
-                error={error}
-                icon={<BadgeDollarSign size={40} color="#ff3b30" />}
-                currentSortKey={filters.paymentMethodSortBy}
-                headerActions={
-                  <div className="ticket-header-controls">
-                    <PaymentDateRangeFilter
-                      currentRange={filters.paymentMethodDateRange}
-                      onRangeChange={(range) =>
-                        dispatch(updatePaymentMethodDateRange(range))
-                      }
-                    />
-                    <PaymentSortFilter />
                   </div>
                 }
               />

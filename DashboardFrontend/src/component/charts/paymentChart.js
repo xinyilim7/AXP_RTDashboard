@@ -106,7 +106,7 @@ export function PaymentMethodChart({
                     layout="vertical"
                     barGap={5}
                     barCategoryGap="30%"
-                    margin={{ top: 20, right: 200, left: 100, bottom: 20 }}
+                    margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
                 >
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                     <YAxis
@@ -145,17 +145,6 @@ export function PaymentMethodChart({
                         cursor={{ fill: 'transparent' }}
                         content={<CustomTooltip currentSortKey={currentSortKey} />}
                     />
-                    <Legend
-                        verticalAlign="top"
-                        align="right"
-                        height={36}
-                        iconType="circle"
-                        wrapperStyle={{
-                            fontSize: "150%",
-                            fontWeight: 700,
-                            paddingLeft: "10px"
-                        }}
-                    />
                     <Bar
                         dataKey={currentSortKey}
                         name="Total"
@@ -185,6 +174,57 @@ export function PaymentMethodChart({
                     />
                 </BarChart>
             </ResponsiveContainer>
+
+            <div
+                style={{
+                    width: "100%",
+                    paddingTop: "15px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "24px",
+                }}
+            >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span
+                      style={{
+                          width: "18px",
+                          height: "18px",
+                          borderRadius: "50%",
+                          backgroundColor: "#10b981",
+                      }}
+                  />
+                    <span style={{ fontSize: "150%" }}>
+                        Success
+                    </span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span
+                      style={{
+                          width: "18px",
+                          height: "18px",
+                          borderRadius: "50%",
+                          backgroundColor: "#ef4444",
+                      }}
+                  />
+                    <span style={{ fontSize: "150%"}}>
+                        Failed
+                    </span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span
+                      style={{
+                          width: "18px",
+                          height: "18px",
+                          borderRadius: "50%",
+                          backgroundColor: "#605b5b",
+                      }}
+                  />
+                    <span style={{ fontSize: "150%"}}>
+                        Total
+                    </span>
+                </div>
+            </div>
         </ChartWrapper>
     );
 }

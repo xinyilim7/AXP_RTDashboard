@@ -172,7 +172,7 @@ export function TrendChart({
 
                 <div className="status-group">
                     <div className="status-header success">
-                        <span>Success Transaction</span>
+                        <span>Success Txns</span>
                     </div>
                     <div className="status-value-row">
                         <span className="status-number">
@@ -184,7 +184,7 @@ export function TrendChart({
 
                 <div className="status-group">
                     <div className="status-header failed">
-                        <span>Failed Transaction</span>
+                        <span>Failed Txns</span>
                     </div>
                     <div className="status-value-row">
                         <span className="status-number">
@@ -276,7 +276,7 @@ export function TrendChart({
                                 interval={0}
                                 tick={{
                                     fill: "var(--text-muted)",
-                                    fontSize: "130%",
+                                    fontSize: "110%",
                                     dy: 10,
                                     angle: 0,
                                 }}
@@ -284,7 +284,7 @@ export function TrendChart({
                                 <Label
                                     value={dateRange === "Weekly" ? "Day of Week" : "Date"}
                                     position="insideBottom"
-                                    dy={30}
+                                    dy={35}
                                     style={{ fontWeight: 700, fill: "var(--text-muted)", fontSize:"130%" }}
                                 />
                             </XAxis>
@@ -359,7 +359,7 @@ export function TrendChart({
                       }}
                   />
                     <span style={{ fontSize: "150%", color: "var(--text-secondary)" }}>
-                        Successful Txns
+                        Success Txns
                     </span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -372,7 +372,7 @@ export function TrendChart({
                       }}
                   />
                     <span style={{ fontSize: "150%", color: "var(--text-secondary)" }}>
-                        Failure Txns
+                        Failed Txns
                     </span>
                 </div>
             </div>
