@@ -29,11 +29,13 @@ export function TrendChart({
     const [showAlert, setShowAlert] = useState(true);
 
     // --- ALERT LOGIC ---
-    const { successTotal, failedTotal, pendingTotal, successRate, failedRate, isCritical, totalVolume, totalAmount } = useMemo(() => {
+    const { successTotal, failedTotal, pendingTotal, successRate, failedRate,
+        isCritical, totalVolume, totalAmount } = useMemo(() => {
         const safeData = Array.isArray(data) ? data : [];
 
         if (safeData.length === 0) {
-            return { successTotal: 0, failedTotal: 0, pendingTotal:0, successRate: 0, failedRate: 0, isCritical: false , totalVolume:0, totalAmount:0 };
+            return { successTotal: 0, failedTotal: 0, pendingTotal:0, successRate: 0,
+                failedRate: 0, isCritical: false , totalVolume:0, totalAmount:0 };
         }
 
         const success = safeData.reduce((acc, cur) => acc + (cur.success || 0), 0);

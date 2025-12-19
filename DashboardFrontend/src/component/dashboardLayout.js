@@ -323,26 +323,18 @@ export function DashboardLayout() {
               Top Merchants
             </button>
           </li>
-          <li>
-            <button
-              onClick={() => handleScrollTo("section-payments")}
-              className="nav-link"
-            >
-              Top Payment Methods
-            </button>
-          </li>
         </ul>
       </nav>
 
       {/* --- 2. MAIN CONTENT GRID --- */}
       <main className="dashboard-main">
           <div id="section-top-view" className="compact-row">
-              <div className="chart-left-panel">
+              <div className="chart-left-panel" id="section-trends">
                   <TrendChart
                       data={displayData.hourlyTrend || []}
                       loading={loading}
                       error={error}
-                      icon={<TrendingUp size={40} color="#ff3b30" />}
+                      icon={<TrendingUp size={45} color="#ff3b30" />}
                       dateRange={filters.dateRange}
                       headerActions={
                           <div className="trend-header-controls">
@@ -361,7 +353,7 @@ export function DashboardLayout() {
                       data={displayData.topPaymentMethods}
                       loading={loading}
                       error={error}
-                      icon={<BadgeDollarSign size={40} color="#ff3b30" />}
+                      icon={<BadgeDollarSign size={45} color="#ff3b30" />}
                       currentSortKey={filters.paymentMethodSortBy}
                       headerActions={
                           <div className="ticket-header-controls" style={{ gap: '0.5rem' }}>
@@ -381,7 +373,7 @@ export function DashboardLayout() {
               data={displayData.topTickets}
               loading={loading}
               error={error}
-              icon={<BanknoteArrowUp size={40} color="#ff3b30" />}
+              icon={<BanknoteArrowUp size={45} color="#ff3b30" />}
               onSort={(sortKey) => dispatch(updateTicketSort(sortKey))}
               currentSortKey={filters.ticketSortBy}
               title={`Top 10 Ticket Sizes (${filters.ticketDateRange})`}
@@ -404,7 +396,7 @@ export function DashboardLayout() {
                 data={displayData.topMerchants}
                 loading={loading}
                 error={error}
-                icon={<Star size={40} color="#ff3b30" />}
+                icon={<Star size={45} color="#ff3b30" />}
                 onSort={handleMerchantSort}
                 currentSortKey={filters.merchantSortBy}
                 headerActions={
