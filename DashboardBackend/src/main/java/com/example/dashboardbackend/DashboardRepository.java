@@ -38,4 +38,7 @@ public interface DashboardRepository extends JpaRepository<Transaction,Long> {
 
     //"WHERE t.timestamp >= :start AND t.status='success' " +
 
+    // 6. Delete Last 2 Months Data
+    void deleteByTimestampBefore(String cutoffTimestamp);
+
 }
