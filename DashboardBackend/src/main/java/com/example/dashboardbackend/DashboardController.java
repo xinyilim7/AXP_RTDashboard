@@ -56,38 +56,6 @@ public class DashboardController {
         return dashboardService.getTopPaymentMethods(dateRange, sortBy);
     }
 
-//    @PostMapping("/ingest")
-//    public ResponseEntity<String> ingestTransaction(
-//            @RequestBody Transaction t,
-//            @RequestHeader(value = "X-Signature", required = false) String signature
-//    ) {
-//        try {
-//            // Convert Object back to JSON
-//            String jsonPayload = objectMapper.writeValueAsString(t);
-//
-//            // --- DEBUG LOGS (Look at these in your console!) ---
-//            System.out.println("========================================");
-//            System.out.println("1. Java Rebuilt JSON: " + jsonPayload);
-//            System.out.println("2. Client Signature:  " + signature);
-//
-//            String serverSignature = securityUtil.calculateHMAC(jsonPayload, apiSecret);
-//            System.out.println("3. Server Signature:  " + serverSignature);
-//            System.out.println("========================================");
-//            // ----------------------------------------------------
-//
-//            if (!securityUtil.isValidSignature(jsonPayload, signature, apiSecret)) {
-//                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Signature");
-//            }
-//
-//            if (t.getTimestamp() == null) t.setTimestamp(LocalDateTime.now().toString());
-//            repository.save(t);
-//            return ResponseEntity.ok("Transaction Saved Successfully");
-//
-//        } catch (JsonProcessingException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Json Format");
-//        }
-//    }
-
     @PostMapping("/ingest")
     public ResponseEntity<String> ingestTransaction(
             @RequestBody String rawJsonPayload, // 1. Receive the exact text the client sent
