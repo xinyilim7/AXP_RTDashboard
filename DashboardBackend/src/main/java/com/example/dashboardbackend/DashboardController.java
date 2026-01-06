@@ -62,38 +62,27 @@ public class DashboardController {
             @RequestHeader(value = "X-Signature", required = false) String signature
     ) {
         try {
-            // --- DEBUG LOGS ---
             System.out.println("========================================");
-            System.out.println("1. Raw Received JSON: " + rawJsonPayload); // Log the RAW string
+            System.out.println("1. Raw Received JSON: " + rawJsonPayload);
             System.out.println("2. Client Signature:  " + signature);
-
             // 2. Validate using the RAW string immediately
-            // We do NOT rebuild the JSON here. We use exactly what arrived.
             if (!securityUtil.isValidSignature(rawJsonPayload, signature, apiSecret)) {
-
-                // Calculate what it SHOULD be for debugging purposes
                 String expected = securityUtil.calculateHMAC(rawJsonPayload, apiSecret);
-                System.out.println("3. Server Calculated: " + expected); // Mismatch debug
+                System.out.println("3. Server Calculated: " + expected);
                 System.out.println("========================================");
-
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Signature");
             }
-
             System.out.println(">>> Signature MATCHED! Saving to DB...");
             System.out.println("========================================");
-
-            // 3. NOW convert the string to the Object (Deserialization)
+            // 3. Convert the string to the Object (Deserialization)
             Transaction t = objectMapper.readValue(rawJsonPayload, Transaction.class);
-
             // 4. Handle timestamp if missing (Safety check)
             if (t.getTimestamp() == null) {
                 t.setTimestamp(LocalDateTime.now().toString());
             }
-
             // 5. Save to Database
             repository.save(t);
             return ResponseEntity.ok("Transaction Saved Successfully");
-
         } catch (JsonProcessingException e) {
             log.error("Failed to parse JSON", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Json Format");

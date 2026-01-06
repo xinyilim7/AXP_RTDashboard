@@ -1,5 +1,7 @@
 # Test by multiple record
-$url = "http://localhost:8080/api/dashboard/ingest"
+$url = "https://stg-tv-dashboard.axaipay.my/api/dashboard/ingest"
+
+$url="http://localhost:8082/api/dashboard/ingest"
 $secret = "axaipay_dashboard_secret_key_123" # Check application.properties
 
 $merchants = @("Gacha Nexus", "Infinite Play", "Coffee House", "Tech Store", "Burger King", "Cinema City")
@@ -13,7 +15,7 @@ $merchant = $merchants | Get-Random
 $category = $categories | Get-Random
 $status = $statuses | Get-Random
 
-$dollars = Get-Random -Minimum 10 -Maximum 500
+$dollars = Get-Random -Minimum 1 -Maximum 2
 $cents = (Get-Random -Minimum 0 -Maximum 99) / 100
 $amount = "{0:N2}" -f ($dollars + $cents)
 
@@ -42,7 +44,6 @@ Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Sent: RM $amount ($merchant)" -
 
 Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1000)
 }
-
 
 # Check how many count
 docker-compose exec db psql -U postgres -d axai_dashboard -c "SELECT COUNT(*) FROM transaction;"
