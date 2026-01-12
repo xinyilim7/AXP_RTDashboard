@@ -35,7 +35,6 @@ public class DashboardController {
     @Value("${app.ingest.secret}")
     private String apiSecret;
 
-
     @GetMapping("/trends")
     public List<Map<String, Object>> getTrend(@RequestParam(defaultValue = "Daily") String dateRange) {
         return dashboardService.getTrendData(dateRange);

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface DashboardRepository extends JpaRepository<Transaction,Long> {
+public interface DashboardRepository extends JpaRepository<Transaction, String> {
     // 1. Trend Data: Just get data after a specific date
     List<Transaction> findByTimestampAfter(String timestamp);
 
