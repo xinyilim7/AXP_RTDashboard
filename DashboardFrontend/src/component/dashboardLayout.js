@@ -8,6 +8,7 @@ import {
   BanknoteArrowUp,
   Star,
   BadgeDollarSign,
+  RefreshCw,
 } from "lucide-react";
 import { TrendChart } from "./charts/trendChart";
 import { TicketSizeTable } from "./tables/ticketSizeTable";
@@ -228,6 +229,14 @@ export function DashboardLayout() {
     dispatch(updateMerchantSort(sortKey));
   };
 
+  /*MANUAL REFRESH HANDLER*/
+  const handleManualRefresh = () => {
+   
+    if (loading) return; 
+    console.log("🔄 Manual refresh triggered by user");
+    dispatch(fetchDashboardDataThunk(filters));
+  };
+
   /* Auto-refresh data every 5s */
   React.useEffect(() => {
     const fetchData = () => {
@@ -253,6 +262,23 @@ export function DashboardLayout() {
 
         {/* Timestamp, Theme, Naviagtor*/}
         <div className="header-actions">
+
+          {/* --- manual refresh btn --- */}
+          <button
+            onClick={handleManualRefresh}
+            disabled={loading}
+            className={`refresh-button ${loading ? "is-loading" : ""}`}
+            title="Refresh Data Now"
+          >
+            <RefreshCw 
+              size={18} 
+              className={loading ? "animate-spin" : ""} 
+              style={{ marginRight: loading ? '0px' : '4px' }}
+            />
+            {!loading && <span className="refresh-text">Refresh</span>}
+          </button>
+          {/* --- manual refresh btn --- */}
+
           <span className="text-sm">
             Last Update:{" "}
             <span className="font-semibold">
