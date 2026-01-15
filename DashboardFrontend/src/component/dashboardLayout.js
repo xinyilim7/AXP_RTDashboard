@@ -217,6 +217,7 @@ export function DashboardLayout() {
   const displayData = data || {};
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const isRefreshing = React.useRef(false); //Add the Ref
   const handleScrollTo = (sectionId) => {
     const section = document.getElementById(sectionId);
     if (section) {
@@ -229,12 +230,21 @@ export function DashboardLayout() {
     dispatch(updateMerchantSort(sortKey));
   };
 
+
   /*MANUAL REFRESH HANDLER*/
-  const handleManualRefresh = () => {
-   
-    if (loading) return; 
-    console.log("🔄 Manual refresh triggered by user");
-    dispatch(fetchDashboardDataThunk(filters));
+   const handleManualRefresh = () => {
+    if (isRefreshing.current) {
+        console.log("🚫 Click blocked");
+        return;
+    }
+    isRefreshing.current = true;
+
+    console.log("🔄 Manual refresh triggered");
+    
+    dispatch(fetchDashboardDataThunk(filters))
+      .finally(() => {
+          isRefreshing.current = false;
+      });
   };
 
   /* Auto-refresh data every 5s */
