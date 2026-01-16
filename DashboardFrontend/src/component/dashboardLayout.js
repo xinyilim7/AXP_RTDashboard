@@ -8,6 +8,7 @@ import {
   BanknoteArrowUp,
   Star,
   BadgeDollarSign,
+  RefreshCw,
 } from "lucide-react";
 import { TrendChart } from "./charts/trendChart";
 import { TicketSizeTable } from "./tables/ticketSizeTable";
@@ -216,6 +217,7 @@ export function DashboardLayout() {
   const displayData = data || {};
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const isRefreshing = React.useRef(false); //Add the Ref
   const handleScrollTo = (sectionId) => {
     const section = document.getElementById(sectionId);
     if (section) {
@@ -226,6 +228,23 @@ export function DashboardLayout() {
 
   const handleMerchantSort = (sortKey) => {
     dispatch(updateMerchantSort(sortKey));
+  };
+
+
+  /*MANUAL REFRESH HANDLER*/
+   const handleManualRefresh = () => {
+    if (isRefreshing.current) {
+        console.log("🚫 Click blocked");
+        return;
+    }
+    isRefreshing.current = true;
+
+    console.log("🔄 Manual refresh triggered");
+    
+    dispatch(fetchDashboardDataThunk(filters))
+      .finally(() => {
+          isRefreshing.current = false;
+      });
   };
 
   /* Auto-refresh data every 5s */
@@ -253,6 +272,23 @@ export function DashboardLayout() {
 
         {/* Timestamp, Theme, Naviagtor*/}
         <div className="header-actions">
+
+          {/* --- manual refresh btn --- */}
+          <button
+            onClick={handleManualRefresh}
+            disabled={loading}
+            className={`refresh-button ${loading ? "is-loading" : ""}`}
+            title="Refresh Data Now"
+          >
+            <RefreshCw 
+              size={18} 
+              className={loading ? "animate-spin" : ""} 
+              style={{ marginRight: loading ? '0px' : '4px' }}
+            />
+            {!loading && <span className="refresh-text">Refresh</span>}
+          </button>
+          {/* --- manual refresh btn --- */}
+
           <span className="text-sm">
             Last Update:{" "}
             <span className="font-semibold">
